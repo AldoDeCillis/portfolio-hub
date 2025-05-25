@@ -1,33 +1,88 @@
 // resources/js/components/organisms/CVWizard.tsx
-import React, { FC, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Heading } from '../atoms/Heading';
-import { Text } from '../atoms/Text';
-import { Button } from '../atoms/Button';
-import { Input } from '../molecules/Input';
-import { TextArea } from '../molecules/TextArea';
+import React, { FC, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Heading } from '../atoms/Heading'
+import { Text } from '../atoms/Text'
+import { Button } from '../atoms/Button'
+import { Input } from '../molecules/Input'
+import { TextArea } from '../molecules/TextArea'
+
+interface Education {
+  title: string
+  year: string
+  institution: string
+  description: string
+}
+
+interface Experience {
+  description: string
+  role: string
+  skills: string
+}
 
 export const CVWizard: FC = () => {
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [educations, setEducations] = useState<Education[]>([
+    { title: '', year: '', institution: '', description: '' },
+  ])
+  const [experiences, setExperiences] = useState<Experience[]>([
+    { description: '', role: '', skills: '' },
+  ])
 
-  const next = () => setStep((s) => Math.min(4, s + 1));
-  const back = () => setStep((s) => Math.max(1, s - 1));
+  const next = () => setStep((s) => Math.min(4, s + 1))
+  const back = () => setStep((s) => Math.max(1, s - 1))
 
   const handleSubmit = () => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     setTimeout(() => {
-      setIsSubmitting(false);
-      alert('🎉 CV generato con successo!');
-    }, 2000);
-  };
+      setIsSubmitting(false)
+      alert('🎉 CV generato con successo!')
+    }, 2000)
+  }
+
+  // Education handlers
+  const addEducation = () =>
+    setEducations((eds) => [
+      ...eds,
+      { title: '', year: '', institution: '', description: '' },
+    ])
+  const removeEducation = () =>
+    setEducations((eds) => eds.slice(0, -1))
+  const handleEducationChange = (
+    idx: number,
+    field: keyof Education,
+    value: string
+  ) => {
+    const copy = [...educations]
+    copy[idx][field] = value
+    setEducations(copy)
+  }
+
+  // Experience handlers
+  const addExperience = () =>
+    setExperiences((exs) => [
+      ...exs,
+      { description: '', role: '', skills: '' },
+    ])
+  const removeExperience = () =>
+    setExperiences((exs) => exs.slice(0, -1))
+  const handleExperienceChange = (
+    idx: number,
+    field: keyof Experience,
+    value: string
+  ) => {
+    const copy = [...experiences]
+    copy[idx][field] = value
+    setExperiences(copy)
+  }
 
   const steps = [
-    { title: 'Informazioni Personali', icon: '👤', description: 'Iniziamo con i tuoi dati base', color: 'from-blue-400 to-purple-400' },
-    { title: 'Formazione',         icon: '🎓', description: 'Raccontaci del tuo percorso educativo', color: 'from-purple-400 to-pink-400' },
-    { title: 'Esperienza & Skills',icon: '💼', description: 'Le tue competenze e esperienze',   color: 'from-pink-400 to-red-400' },
-    { title: 'Anteprima & Generazione', icon: '✨', description: 'Rivedi e genera il tuo CV',     color: 'from-green-400 to-blue-400' },
-  ];
+    { title: 'Informazioni Personali', icon: '👤', color: 'from-blue-400 to-purple-400' },
+    { title: 'Formazione',           icon: '🎓', color: 'from-purple-400 to-pink-400' },
+    { title: 'Esperienza & Skills',  icon: '💼', color: 'from-pink-400 to-red-400' },
+    { title: 'Anteprima & Generazione', icon: '✨', color: 'from-green-400 to-blue-400' },
+  ]
 
   return (
     <motion.section
@@ -111,6 +166,7 @@ export const CVWizard: FC = () => {
               transition={{ duration: 0.4 }}
               className="space-y-6"
             >
+              {/* Step 1 */}
               {step === 1 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -124,26 +180,121 @@ export const CVWizard: FC = () => {
                   <Input placeholder="LinkedIn Profile URL" />
                 </div>
               )}
+
+              {/* Step 2: Education */}
               {step === 2 && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input placeholder="Titolo di studio" />
-                    <Input placeholder="Anno di conseguimento" />
+                  {educations.map((edu, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ x: 50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.4, delay: i * 0.1 }}
+                      className="space-y-4"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input
+                          placeholder="Titolo di studio"
+                          value={edu.title}
+                          onChange={(e) =>
+                            handleEducationChange(i, 'title', e.target.value)
+                          }
+                        />
+                        <Input
+                          placeholder="Anno di conseguimento"
+                          value={edu.year}
+                          onChange={(e) =>
+                            handleEducationChange(i, 'year', e.target.value)
+                          }
+                        />
+                      </div>
+                      <Input
+                        placeholder="Istituzione/Università"
+                        value={edu.institution}
+                        onChange={(e) =>
+                          handleEducationChange(i, 'institution', e.target.value)
+                        }
+                      />
+                      <TextArea
+                        placeholder="Descrizione del percorso formativo"
+                        rows={4}
+                        value={edu.description}
+                        onChange={(e) =>
+                          handleEducationChange(i, 'description', e.target.value)
+                        }
+                      />
+                    </motion.div>
+                  ))}
+                  <div className="flex justify-between items-center">
+                    {educations.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        className="text-red-500 border-red-500 hover:bg-red-600 hover:text-white"
+                        onClick={removeEducation}
+                      >
+                        − Rimuovi formazione
+                      </Button>
+                    )}
+                    <Button variant="ghost" onClick={addEducation} className="text-sm">
+                      + Aggiungi formazione
+                    </Button>
                   </div>
-                  <Input placeholder="Istituzione/Università" />
-                  <TextArea placeholder="Descrizione del percorso formativo" rows={4} />
                 </div>
               )}
+
+              {/* Step 3: Experience */}
               {step === 3 && (
                 <div className="space-y-6">
-                  <TextArea placeholder="Esperienza professionale" rows={5} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input placeholder="Skills tecniche" />
-                    <Input placeholder="Lingue e livello" />
+                  {experiences.map((exp, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ x: 50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.4, delay: i * 0.1 }}
+                      className="space-y-4"
+                    >
+                      <TextArea
+                        placeholder="Esperienza professionale"
+                        rows={5}
+                        value={exp.description}
+                        onChange={(e) =>
+                          handleExperienceChange(i, 'description', e.target.value)
+                        }
+                      />
+                      <Input
+                        placeholder="Ruolo"
+                        value={exp.role}
+                        onChange={(e) =>
+                          handleExperienceChange(i, 'role', e.target.value)
+                        }
+                      />
+                      <Input
+                        placeholder="Skills tecniche"
+                        value={exp.skills}
+                        onChange={(e) =>
+                          handleExperienceChange(i, 'skills', e.target.value)
+                        }
+                      />
+                    </motion.div>
+                  ))}
+                  <div className="flex justify-between items-center">
+                    {experiences.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        className="text-red-500 border-red-500 hover:bg-red-600 hover:text-white"
+                        onClick={removeExperience}
+                      >
+                        − Rimuovi esperienza
+                      </Button>
+                    )}
+                    <Button variant="ghost" onClick={addExperience} className="text-sm">
+                      + Aggiungi esperienza
+                    </Button>
                   </div>
-                  <TextArea placeholder="Progetti personali (opzionale)" rows={3} />
                 </div>
               )}
+
+              {/* Step 4 */}
               {step === 4 && (
                 <div className="text-center space-y-8">
                   <motion.div
@@ -179,6 +330,7 @@ export const CVWizard: FC = () => {
             </motion.div>
           </AnimatePresence>
 
+          {/* Navigation */}
           <div className="flex justify-between items-center mt-12 pt-8 border-t border-white/10">
             <Button
               variant="ghost"
@@ -195,22 +347,11 @@ export const CVWizard: FC = () => {
               disabled={isSubmitting}
               className="relative overflow-hidden"
             >
-              {isSubmitting ? (
-                <motion.div
-                  className="flex items-center gap-2"
-                  animate={{ opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Generando...
-                </motion.div>
-              ) : (
-                step < 4 ? 'Avanti →' : '✨ Genera CV'
-              )}
+              {isSubmitting ? 'Generando...' : step < 4 ? 'Avanti →' : '✨ Genera CV'}
             </Button>
           </div>
         </motion.div>
       </div>
     </motion.section>
-  );
-};
+  )
+}
