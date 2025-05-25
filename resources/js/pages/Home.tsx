@@ -1,5 +1,3 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { FC } from 'react';
 import { Heading } from '@/components/atoms/Heading';
 import { Text } from '@/components/atoms/Text';
 import { ProjectCard } from '@/components/molecules/ProjectCard';
@@ -8,32 +6,35 @@ import { ContactForm } from '@/components/organisms/ContactForm';
 import { CVWizard } from '@/components/organisms/CVWizard';
 import { Hero } from '@/components/organisms/Hero';
 import { MainLayout } from '@/components/templates/MainLayout';
+import { usePage } from '@inertiajs/react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { a } from 'node_modules/framer-motion/dist/types.d-CtuPurYT';
+import { FC } from 'react';
 
-const dummyProjects = [
-    {
-        title: 'AI Portfolio Generator',
-        description:
-            'Una piattaforma intelligente che crea portfolio personalizzati utilizzando machine learning per ottimizzare la presentazione dei tuoi progetti.',
-        imageUrl: 'https://picsum.photos/400/240?random=1',
-        link: '#',
-    },
-    {
-        title: 'Dynamic CV Builder',
-        description:
-            'Sistema avanzato di generazione CV che si adatta automaticamente alle offerte di lavoro utilizzando algoritmi di Natural Language Processing.',
-        imageUrl: 'https://picsum.photos/400/240?random=2',
-        link: '#',
-    },
-    {
-        title: 'Career Analytics Dashboard',
-        description:
-            'Dashboard interattiva che analizza le tendenze del mercato del lavoro e suggerisce miglioramenti per il tuo profilo professionale.',
-        imageUrl: 'https://picsum.photos/400/240?random=3',
-        link: '#',
-    },
-];
+type Project = {
+    id: number;
+    title: string;
+    description: string;
+    image_url: string;
+    link: string;
+};
+type Article = {
+  id: number
+  title: string
+  slug: string
+  excerpt: string
+  image_url: string | null
+  read_time: string
+  published_at: string
+  category: string | null
+}
 
 const Home: FC = () => {
+        const { projects, articles } = usePage<{
+    projects: Project[]
+    articles: Article[]
+  }>().props
+  console.log(articles)
     const { scrollYProgress } = useScroll();
     const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
@@ -72,13 +73,20 @@ const Home: FC = () => {
                         </Text>
                     </motion.div>
                     <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 lg:grid-cols-2 xl:grid-cols-3">
-                        {dummyProjects.map((proj, idx) => (
-                            <ProjectCard key={idx} {...proj} index={idx} />
+                        {projects.map((proj: Project, idx: number) => (
+                            <ProjectCard
+                                key={proj.id}
+                                title={proj.title}
+                                description={proj.description}
+                                imageUrl={proj.image_url}
+                                link={proj.link}
+                                index={idx}
+                            />
                         ))}
                     </div>
                 </div>
             </motion.section>
-            <BlogSection />
+            <BlogSection articles={articles} />
             <ContactForm />
         </MainLayout>
     );

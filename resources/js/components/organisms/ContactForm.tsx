@@ -1,37 +1,37 @@
-import React, { FC, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Heading } from '../atoms/Heading';
-import { Text } from '../atoms/Text';
-import { Button } from '../atoms/Button';
-import { Input } from '../molecules/Input';
-import { TextArea } from '../molecules/TextArea';
+// resources/js/components/organisms/ContactForm.tsx
+import React, { FC } from 'react'
+import { motion } from 'framer-motion'
+import { useForm, usePage } from '@inertiajs/react'
+import { Heading } from '../atoms/Heading'
+import { Text } from '../atoms/Text'
+import { Button } from '../atoms/Button'
+import { Input } from '../molecules/Input'
+import { TextArea } from '../molecules/TextArea'
+
+interface ContactFormPageProps {
+  flash?: {
+    success?: string
+  }
+  [key: string]: any
+}
 
 export const ContactForm: FC = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  // Prendiamo flash da Inertia, ma assicuriamoci sempre un fallback {}
+  const { flash: maybeFlash } = usePage<ContactFormPageProps>().props
+  const flash = maybeFlash ?? {}
+
+  const { data, setData, post, processing, errors, reset } = useForm({
+    name: '',
+    email: '',
+    message: '',
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('🎉 Messaggio inviato con successo!');
-      setFormData({ name: '', email: '', message: '' });
-    }, 2000);
-  };
-
-  const contacts = [
-    { icon: '📧', title: 'Email', info: 'hello@portfoliohub.com', color: 'from-blue-400 to-purple-400' },
-    { icon: '📱', title: 'Telefono', info: '+39 123 456 7890', color: 'from-purple-400 to-pink-400' },
-    { icon: '📍', title: 'Location', info: 'Milano, Italia', color: 'from-pink-400 to-red-400' },
-  ];
-
-  const socials = [
-    { icon: '💼', href: '#', color: 'from-blue-400 to-blue-600' },
-    { icon: '🐱', href: '#', color: 'from-gray-400 to-gray-600' },
-    { icon: '🐦', href: '#', color: 'from-blue-400 to-blue-500' },
-    { icon: '📷', href: '#', color: 'from-pink-400 to-purple-600' },
-  ];
+    e.preventDefault()
+    post(route('contact.store'), {
+      onSuccess: () => reset(),
+    })
+  }
 
   return (
     <motion.section
@@ -42,7 +42,7 @@ export const ContactForm: FC = () => {
       viewport={{ once: true }}
       transition={{ duration: 0.8 }}
     >
-      {/* Background Effects */}
+      {/* Background blobs (optional) */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
@@ -64,7 +64,6 @@ export const ContactForm: FC = () => {
           >
             <span className="text-3xl">💬</span>
           </motion.div>
-
           <Heading
             level={2}
             className="text-6xl mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold"
@@ -76,28 +75,14 @@ export const ContactForm: FC = () => {
           </Text>
         </motion.div>
 
-        {/* Contact Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {contacts.map((c, i) => (
-            <motion.div
-              key={i}
-              className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center"
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
-            >
-              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${c.color} mb-4`}>
-                <span className="text-xl">{c.icon}</span>
-              </div>
-              <Text className="text-white font-semibold mb-1">{c.title}</Text>
-              <Text className="text-gray-400 text-sm">{c.info}</Text>
-            </motion.div>
-          ))}
-        </div>
+        {/* Flash Success Message */}
+        {flash.success && (
+          <div className="mb-6 text-center text-green-400 font-semibold">
+            {flash.success}
+          </div>
+        )}
 
-        {/* Main Form Card */}
+        {/* Form Card */}
         <motion.div
           className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-white/10 shadow-2xl"
           initial={{ y: 50, opacity: 0 }}
@@ -105,55 +90,46 @@ export const ContactForm: FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ x: -30, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
+              <div>
                 <label className="block text-white font-semibold mb-2">Nome *</label>
                 <Input
                   type="text"
                   placeholder="Il tuo nome completo"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={data.name}
+                  onChange={e => setData('name', e.target.value)}
+                  className={errors.name ? 'border-red-500' : ''}
                   required
                 />
-              </motion.div>
-              <motion.div
-                initial={{ x: 30, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+                {errors.name && <p className="mt-1 text-red-400 text-sm">{errors.name}</p>}
+              </div>
+              <div>
                 <label className="block text-white font-semibold mb-2">Email *</label>
                 <Input
                   type="email"
                   placeholder="la-tua-email@esempio.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={data.email}
+                  onChange={e => setData('email', e.target.value)}
+                  className={errors.email ? 'border-red-500' : ''}
                   required
                 />
-              </motion.div>
+                {errors.email && <p className="mt-1 text-red-400 text-sm">{errors.email}</p>}
+              </div>
             </div>
 
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
+            <div>
               <label className="block text-white font-semibold mb-2">Messaggio *</label>
               <TextArea
                 rows={6}
                 placeholder="Raccontami del tuo progetto..."
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                value={data.message}
+                onChange={e => setData('message', e.target.value)}
+                className={errors.message ? 'border-red-500' : ''}
                 required
               />
-            </motion.div>
+              {errors.message && <p className="mt-1 text-red-400 text-sm">{errors.message}</p>}
+            </div>
 
             <motion.div
               className="text-center pt-4"
@@ -165,30 +141,16 @@ export const ContactForm: FC = () => {
               <Button
                 type="submit"
                 variant="primary"
-                disabled={isSubmitting}
+                disabled={processing}
                 className="px-12 py-4 text-lg relative overflow-hidden"
               >
-                {isSubmitting ? (
-                  <motion.div
-                    className="flex items-center gap-3"
-                    animate={{ opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  >
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Invio in corso...
-                  </motion.div>
-                ) : (
-                  <span className="flex items-center gap-2">🚀 Invia Messaggio</span>
-                )}
+                {processing ? 'Invio in corso…' : '🚀 Invia Messaggio'}
               </Button>
-              <Text className="text-gray-400 text-sm mt-4">
-                Risponderò entro 24 ore • I tuoi dati sono al sicuro 🔒
-              </Text>
             </motion.div>
           </form>
         </motion.div>
 
-        {/* Social Links */}
+        {/* Social Links (facoltativo) */}
         <motion.div
           className="text-center mt-12"
           initial={{ y: 30, opacity: 0 }}
@@ -198,21 +160,10 @@ export const ContactForm: FC = () => {
         >
           <Text className="text-gray-400 mb-6">Oppure seguimi sui social</Text>
           <div className="flex justify-center space-x-4">
-            {socials.map((s, i) => (
-              <motion.a
-                key={i}
-                href={s.href}
-                className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${s.color} text-white text-xl`}
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-              >
-                {s.icon}
-              </motion.a>
-            ))}
+            {/* Inserisci qui le icone social */}
           </div>
         </motion.div>
       </div>
     </motion.section>
-  );
-};
+  )
+}
