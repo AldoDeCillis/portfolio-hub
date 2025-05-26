@@ -8,7 +8,6 @@ import { Hero } from '@/components/organisms/Hero';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { usePage } from '@inertiajs/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { a } from 'node_modules/framer-motion/dist/types.d-CtuPurYT';
 import { FC } from 'react';
 
 type Project = {
@@ -19,22 +18,22 @@ type Project = {
     link: string;
 };
 type Article = {
-  id: number
-  title: string
-  slug: string
-  excerpt: string
-  image_url: string | null
-  read_time: string
-  published_at: string
-  category: string | null
-}
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string;
+    image_url: string | null;
+    read_time: string;
+    published_at: string;
+    category: string | null;
+};
 
 const Home: FC = () => {
-        const { projects, articles } = usePage<{
-    projects: Project[]
-    articles: Article[]
-  }>().props
-  console.log(articles)
+    const { projects, articles } = usePage<{
+        projects: Project[];
+        articles: Article[];
+    }>().props;
+    console.log(articles);
     const { scrollYProgress } = useScroll();
     const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
