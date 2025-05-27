@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap&display=swap');
 @import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
@@ -9,8 +10,9 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji',
+        'Roboto Mono', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'VT323', ui-monospace, monospace;
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
@@ -58,11 +60,11 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-cyber-neon-pink:  var(--cyber-neon-pink);
-    --color-cyber-neon-blue:  var(--cyber-neon-blue);
+    --color-cyber-neon-pink: var(--cyber-neon-pink);
+    --color-cyber-neon-blue: var(--cyber-neon-blue);
     --color-cyber-neon-green: var(--cyber-neon-green);
-    --color-cyber-dark:       var(--cyber-dark);
-    --color-cyber-gray:       var(--cyber-gray);
+    --color-cyber-dark: var(--cyber-dark);
+    --color-cyber-gray: var(--cyber-gray);
 }
 
 /*
@@ -117,11 +119,11 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
-    --cyber-neon-pink:  #ff007f;
-    --cyber-neon-blue:  #00e5ff;
+    --cyber-neon-pink: #ff007f;
+    --cyber-neon-blue: #00e5ff;
     --cyber-neon-green: #39ff14;
-    --cyber-dark:       #0a0a0a;
-    --cyber-gray:       #1f1f1f;
+    --cyber-dark: #0a0a0a;
+    --cyber-gray: #1f1f1f;
 }
 
 .dark {
@@ -165,6 +167,15 @@
     }
 
     body {
+        font-family: 'Roboto Mono', monospace;
         @apply bg-background text-foreground;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: 'VT323', monospace;
     }
 }
