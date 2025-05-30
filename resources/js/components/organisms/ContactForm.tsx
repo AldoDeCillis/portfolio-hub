@@ -223,7 +223,7 @@ export const ContactForm: FC = () => {
                           placeholder="Enter your designation..."
                           value={data.name}
                           onChange={e => setData('name', e.target.value)}
-                          className={`bg-black/50 border-purple-500/30 text-white placeholder-gray-500 focus:border-purple-400 focus:ring-purple-400/20 backdrop-blur-sm ${errors.name ? 'border-red-500' : ''}`}
+                          className={`${errors.name ? 'border-red-500' : ''}`}
                           required
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
@@ -268,7 +268,7 @@ export const ContactForm: FC = () => {
                         placeholder="Encode your message in the digital realm..."
                         value={data.message}
                         onChange={e => setData('message', e.target.value)}
-                        className={`bg-black/50 border-purple-500/30 text-white placeholder-gray-500 focus:border-purple-400 focus:ring-purple-400/20 resize-none backdrop-blur-sm ${errors.message ? 'border-red-500' : ''}`}
+                        className={`${errors.message ? 'border-red-500' : ''}`}
                         required
                       />
                       <div className="absolute right-3 top-3 w-2 h-2 bg-green-400 rounded-full animate-pulse" />

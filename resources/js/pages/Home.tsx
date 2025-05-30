@@ -5,6 +5,7 @@ import { BlogSection } from '@/components/organisms/BlogSection';
 import { ContactForm } from '@/components/organisms/ContactForm';
 import { CVWizard } from '@/components/organisms/CVWizard';
 import { Hero } from '@/components/organisms/Hero';
+import { Skills } from '@/components/organisms/Skills';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { usePage } from '@inertiajs/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -40,6 +41,7 @@ const Home: FC = () => {
     return (
         <MainLayout>
             <Hero />
+            <Skills />
             <CVWizard />
             <motion.section
                 id="projects"
