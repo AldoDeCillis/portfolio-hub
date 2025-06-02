@@ -18,7 +18,7 @@ CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
 EOF
 
-# Crea database SQLite se non esiste
+# Crea il file SQLite se non esiste
 mkdir -p /var/www/html/database
 touch /var/www/html/database/database.sqlite
 chmod 664 /var/www/html/database/database.sqlite
@@ -28,6 +28,9 @@ chown www-data:www-data /var/www/html/database/database.sqlite
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
-# Avvia PHP-FPM e Nginx (senza service)
+# Applica le migrazioni
+php artisan migrate --force
+
+# Avvia PHP-FPM e Nginx
 php-fpm &
 nginx -g 'daemon off;'
