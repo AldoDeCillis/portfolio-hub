@@ -10,24 +10,24 @@ APP_URL=${APP_URL}
 
 LOG_CHANNEL=stack
 
-DB_CONNECTION=mysql
-DB_HOST=${DB_HOST}
-DB_PORT=${DB_PORT}
-DB_DATABASE=${DB_DATABASE}
-DB_USERNAME=${DB_USERNAME}
-DB_PASSWORD=${DB_PASSWORD}
+DB_CONNECTION=sqlite
+DB_DATABASE=/var/www/html/database/database.sqlite
 
 SESSION_DRIVER=file
 CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
 EOF
 
+# Crea database SQLite se non esiste
+mkdir -p /var/www/html/database
+touch /var/www/html/database/database.sqlite
+chmod 664 /var/www/html/database/database.sqlite
+chown www-data:www-data /var/www/html/database/database.sqlite
+
 # Imposta permessi corretti
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
-# Avvia PHP-FPM e Nginx in background
+# Avvia PHP-FPM e Nginx (senza service)
 php-fpm &
-
-# Avvia nginx in foreground (mantiene il container vivo)
 nginx -g 'daemon off;'
