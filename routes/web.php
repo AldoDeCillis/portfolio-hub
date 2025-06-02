@@ -8,6 +8,10 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProjectController;
 
+Route::get('/test-error', function () {
+    abort(500, 'Test Error');
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
 
