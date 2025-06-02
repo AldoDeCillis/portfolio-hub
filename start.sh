@@ -1,4 +1,3 @@
-# start.sh
 #!/bin/bash
 
 # Crea dinamicamente il file .env
@@ -27,6 +26,8 @@ EOF
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
-# Avvia PHP-FPM e Nginx
-service php8.2-fpm start
+# Avvia PHP-FPM e Nginx in background
+php-fpm &
+
+# Avvia nginx in foreground (mantiene il container vivo)
 nginx -g 'daemon off;'
