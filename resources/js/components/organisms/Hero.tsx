@@ -31,7 +31,7 @@ export const Hero: FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* Enhanced Background */}
+{/* Enhanced Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-purple-500/15 via-transparent to-transparent"></div>
 
@@ -108,7 +108,7 @@ export const Hero: FC = () => {
             >
               <Heading
                 level={1}
-                className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight"
+                className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight pt-8"
               >
                 <motion.span
                   className="block text-white mb-2"
@@ -116,15 +116,15 @@ export const Hero: FC = () => {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.3 }}
                 >
-                  Full Stack
+                  Aldo De Cillis
                 </motion.span>
                 <motion.span
-                  className="block bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent mb-4"
+                  className="block text-6xl bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent mb-4"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
                 >
-                  Developer
+                  Full-stack Web Developer
                 </motion.span>
                 <motion.div
                   className="text-lg md:text-xl text-purple-300 font-mono"
@@ -148,7 +148,7 @@ export const Hero: FC = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             >
-              <Text className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-2xl">
+              <Text className="text-xl text-gray-300 leading-relaxed max-w-2xl">
                 Trasformo idee in <span className="text-purple-400 font-semibold">codice elegante</span> e
                 <span className="text-pink-400 font-semibold"> esperienze digitali</span> memorabili.
               </Text>
@@ -159,7 +159,7 @@ export const Hero: FC = () => {
 
             {/* CTA Buttons */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-6"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}

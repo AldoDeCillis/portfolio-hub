@@ -1,6 +1,7 @@
 import { Heading } from '@/components/atoms/Heading';
 import { Text } from '@/components/atoms/Text';
 import { ProjectCard } from '@/components/molecules/ProjectCard';
+import { About } from '@/components/organisms/About';
 import { BlogSection } from '@/components/organisms/BlogSection';
 import { ContactForm } from '@/components/organisms/ContactForm';
 import { CVWizard } from '@/components/organisms/CVWizard';
@@ -41,6 +42,7 @@ const Home: FC = () => {
     return (
         <MainLayout>
             <Hero />
+            <About />
             <Skills />
             <CVWizard />
             <motion.section
