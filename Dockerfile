@@ -1,56 +1,70 @@
-# ---------------------------------------------
-# Stage 1: Build assets (Vite + Node)
-# ---------------------------------------------
-FROM node:20-alpine as build
+# Stage 1 - Build frontend
+FROM node:20 AS build-frontend
 
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
-COPY resources/ ./resources
-COPY vite.config.* .
-COPY public/ ./public
+COPY . .
 RUN npm run build
 
-# ---------------------------------------------
-# Stage 2: PHP + Laravel + Nginx
-# ---------------------------------------------
-FROM php:8.2-fpm-alpine
 
-# Install dependencies
-RUN apk add --no-cache nginx bash libpng-dev libzip-dev zip unzip curl git mysql-client oniguruma-dev icu-dev
+# Stage 2 - Laravel + PHP + Nginx
+FROM php:8.2-fpm
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql zip intl
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    nginx \
+    unzip \
+    git \
+    curl \
+    libpng-dev \
+    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    && docker-php-ext-install pdo pdo_mysql zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy Laravel app
+# Set working directory
 WORKDIR /var/www/html
+
+# Copy app source code
 COPY . .
 
-# Copy built assets
-COPY --from=build /app/public/build /var/www/html/public/build
+# Copy frontend build from previous stage
+COPY --from=build-frontend /app/public/build ./public/build
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Set permissions
-RUN mkdir -p storage/logs bootstrap/cache \
- && chmod -R 775 storage bootstrap/cache \
- && chown -R www-data:www-data storage bootstrap/cache
-
-# Cache config
-RUN php artisan config:cache
-
-# Nginx config
+# Copy nginx config and start script
 COPY nginx.conf /etc/nginx/nginx.conf
-
-# Start script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+# Install PHP dependencies (no --no-dev to allow debug)
+RUN composer install
+
+# Laravel: set correct permissions
+RUN mkdir -p storage/logs bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache
+
+# Create .env from environment variables at runtime
+RUN echo '# Auto-generated .env from Dockerfile\n' > .env && \
+    echo "APP_NAME=Laravel" >> .env && \
+    echo "APP_ENV=\${APP_ENV}" >> .env && \
+    echo "APP_KEY=\${APP_KEY}" >> .env && \
+    echo "APP_DEBUG=\${APP_DEBUG}" >> .env && \
+    echo "APP_URL=\${APP_URL}" >> .env && \
+    echo "LOG_CHANNEL=stack" >> .env && \
+    echo "DB_CONNECTION=mysql" >> .env && \
+    echo "DB_HOST=\${DB_HOST}" >> .env && \
+    echo "DB_PORT=\${DB_PORT}" >> .env && \
+    echo "DB_DATABASE=\${DB_DATABASE}" >> .env && \
+    echo "DB_USERNAME=\${DB_USERNAME}" >> .env && \
+    echo "DB_PASSWORD=\${DB_PASSWORD}" >> .env
+
+# Expose ports for Nginx and PHP-FPM
 EXPOSE 80
-CMD ["/start.sh"]
+
+CMD ["sh", "/start.sh"]
