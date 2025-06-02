@@ -1,50 +1,52 @@
-FROM node:20-alpine AS node_modules
+# Dockerfile per Laravel + Vite + Nginx + PHP-FPM (Alpine)
+
+# Stage 1: Build assets con Node
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json .
 RUN npm install
-
-# -------------------------------
-
-FROM php:8.2-fpm-alpine
-
-# Install system dependencies
-RUN apk add --no-cache nginx curl bash git libzip-dev zip unzip libpng-dev \
-    icu-dev zlib-dev oniguruma-dev sqlite sqlite-dev nodejs npm
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite zip intl opcache
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working dir
-WORKDIR /var/www
-
-# Copy Laravel code
-COPY . .
-
-# Copy node_modules from first stage
-COPY --from=node_modules /app/node_modules ./node_modules
-
-# Install Laravel backend dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Build assets
+COPY resources ./resources
+COPY vite.config.* .
+COPY tailwind.config.* .
+COPY postcss.config.* .
 RUN npm run build
 
-# Cache Laravel configs & fix permissions
-RUN php artisan config:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    mkdir -p storage/logs bootstrap/cache && \
-    chown -R www-data:www-data storage bootstrap/cache
+# Stage 2: PHP + Laravel + Nginx
+FROM php:8.2-fpm-alpine
 
-# Add nginx config
+# Installa pacchetti base + estensioni PHP
+RUN apk add --no-cache nginx bash git curl zip unzip libzip-dev icu-dev oniguruma-dev zlib-dev sqlite sqlite-dev \
+  && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip intl opcache
+
+# Installa Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Cartella app
+WORKDIR /var/www/html
+
+# Copia codice Laravel
+COPY . .
+
+# Copia assets compilati
+COPY --from=frontend-builder /app/public ./public
+
+# Installa dipendenze Laravel
+RUN composer install --no-dev --optimize-autoloader
+
+# Cache Laravel e permessi
+RUN php artisan config:clear \
+  && php artisan config:cache \
+  && php artisan route:cache \
+  && php artisan view:cache \
+  && mkdir -p storage/logs bootstrap/cache \
+  && chmod -R 775 storage bootstrap/cache \
+  && chown -R www-data:www-data storage bootstrap/cache
+
+# Copia configurazione Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose HTTP port
+# Espone porta HTTP
 EXPOSE 80
 
-# Start both nginx and php-fpm
-CMD ["/bin/sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+# Avvia Nginx e PHP-FPM
+CMD php-fpm -D && nginx -g 'daemon off;'
