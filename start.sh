@@ -3,7 +3,7 @@
 # Crea dinamicamente il file .env
 cat <<EOF > .env
 APP_NAME=Laravel
-APP_ENV=${APP_ENV}
+APP_ENV=production
 APP_KEY=${APP_KEY}
 APP_DEBUG=${APP_DEBUG}
 APP_URL=${APP_URL}
