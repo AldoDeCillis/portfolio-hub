@@ -1,35 +1,50 @@
-# 1. Usa un'immagine base con PHP, Apache e Composer
-FROM php:8.2-apache
+FROM node:20-alpine AS node_modules
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
 
-# 2. Installa estensioni PHP necessarie
-RUN apt-get update && apt-get install -y \
-    unzip zip git curl libzip-dev libpng-dev libonig-dev libxml2-dev npm nodejs \
-    && docker-php-ext-install pdo pdo_mysql zip
+# -------------------------------
 
-# 3. Installa Composer globalmente
+FROM php:8.2-fpm-alpine
+
+# Install system dependencies
+RUN apk add --no-cache nginx curl bash git libzip-dev zip unzip libpng-dev \
+    icu-dev zlib-dev oniguruma-dev sqlite sqlite-dev nodejs npm
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite zip intl opcache
+
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 4. Imposta la cartella del progetto
-WORKDIR /var/www/html
+# Set working dir
+WORKDIR /var/www
 
-# 5. Copia tutto il tuo progetto nel container
+# Copy Laravel code
 COPY . .
 
-# 6. Installa dipendenze backend
+# Copy node_modules from first stage
+COPY --from=node_modules /app/node_modules ./node_modules
+
+# Install Laravel backend dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 7. Installa dipendenze frontend e builda assets con Vite
-RUN npm install && npm run build
+# Build assets
+RUN npm run build
 
-# 8. Cache config Laravel e imposta permessi
-RUN php artisan config:cache && \
+# Cache Laravel configs & fix permissions
+RUN php artisan config:clear && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    mkdir -p storage/logs bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache
 
-# 9. Cambia root di Apache su /public
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
-    /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf \
-    /etc/apache2/conf-available/*.conf
+# Add nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# 10. Abilita mod_rewrite di Apache per le rotte Laravel
-RUN a2enmod rewrite
+# Expose HTTP port
+EXPOSE 80
+
+# Start both nginx and php-fpm
+CMD ["/bin/sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
